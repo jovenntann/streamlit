@@ -11,9 +11,9 @@ st.title("User Story Generation")
 business_description = st.text_area("Enter the business description:")
 
 # You no longer need `persona_generated` as session state will track the personas
-if st.button("Generate Persona"):
-    # Assuming `generate_persona` returns a list of personas
-    st.session_state['personas'] = generate_persona(business_description=business_description)
+if st.button("Generate Persona", key="generate_persona_button"):
+    with st.spinner("Generating Persona..."):
+        st.session_state['personas'] = generate_persona(business_description=business_description)
 
 # Check if there are any personas to display
 if st.session_state['personas']:
@@ -27,7 +27,8 @@ if 'integrations' not in st.session_state:
     st.session_state['integrations'] = []
 
 if st.button("Generate Integrations"):
-    st.session_state['integrations'] = generate_integrations(business_description=business_description)
+    with st.spinner("Generating Integrations..."):
+        st.session_state['integrations'] = generate_integrations(business_description=business_description)
 
 # Check if there are any integrations to display
 if st.session_state['integrations']:
@@ -42,8 +43,9 @@ if 'integration_tasks' not in st.session_state:
     st.session_state['integration_tasks'] = []
 
 if st.button("Generate Integration Tasks"):
-    selected_integrations = [integration for integration in st.session_state['integrations'] if st.session_state[integration+"_checkbox"]]
-    st.session_state['integration_tasks'] = generate_tasks_based_on_integration(business_description=business_description,integration=selected_integrations[0])
+    with st.spinner("Generating Integration Tasks..."):  # Add loading spinner
+        selected_integrations = [integration for integration in st.session_state['integrations'] if st.session_state[integration+"_checkbox"]]
+        st.session_state['integration_tasks'] = generate_tasks_based_on_integration(business_description=business_description,integration=selected_integrations[0])
 
 # Check if there are any integration tasks to display
 if st.session_state['integration_tasks']:

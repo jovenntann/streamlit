@@ -172,7 +172,7 @@ def generate_tasks_based_on_integration(business_description: str, integration: 
             messages=[
                 {
                     "role": "user",
-                    "content": 'Business Description: ' + business_description + ' based on the provided business description, please generate tasks pertaining to ' + integration + ' integration strictly in this json format example { data: ["Setup Sandbox", "Integrate to backend"] }',
+                    "content": 'Business Description: ' + business_description + ' based on the provided business description, please generate tasks pertaining to ' + integration + ' integration including the estimated hours to develop strictly in this json format example { data: ["Setup Sandbox 2hrs", "Integrate to backend 8hrs"] }',
                 }
             ],
             model="gpt-4-0125-preview",
