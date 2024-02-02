@@ -1,6 +1,8 @@
 from openai import OpenAI
 import logging
 import os
+import json
+
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -23,17 +25,19 @@ def generate_persona(business_description: str) -> list:
             messages=[
                 {
                     "role": "user",
-                    "content": f"Based on the provided business description, please generate a list of application persona (e.g admin, customer, manager) for the app: {business_description} List down in Array in this format: ['Persona 1', 'Persona 2']",
+                    "content": 'Business Description: ' + business_description + ' based on the provided business description, please generate a list of application persona for the app in json format: { data: ["Admin", "Customer", "Provider"] }',
                 }
             ],
-            model="gpt-4",
+            model="gpt-4-0125-preview",
+            response_format= { "type":"json_object" }
         )
         content_response = response.choices[0].message.content
-        converted_response = content_response.replace('\'', '').replace('[', '').replace(']', '').split(', ')
-        generated_persona = [persona.strip() for persona in converted_response]
-        logging.info(f"Type of generated persona: {type(generated_persona)}")
-        logging.info(f"Generated persona: {generated_persona}")
-        return generated_persona
+        content_json = json.loads(content_response)
+        logging.info(content_json)
+
+        logging.info(f"Type of generated persona: {type(content_json)}")
+        logging.info(f"Generated persona: {content_json}")
+        return content_json['data']
     except Exception as e:
         logging.error(f"Error generating persona: {e}")
         return []
@@ -138,19 +142,48 @@ def generate_integrations(business_description: str) -> list:
             messages=[
                 {
                     "role": "user",
-                    "content": f"Based on the provided business description, please generate 3rd party integrations: {business_description} List down in Array in this format: ['Integration 1', 'Integration 2']",
+                    "content": 'Business Description: ' + business_description + ' based on the provided business description, please generate a list of 3rd party integration for the app in json format example: { data: ["Paypal (Payment Integration)", "Stripe (Payment Integration)", "Dropbox (File Upload)"] }',
                 }
             ],
-            model="gpt-4",
+            model="gpt-4-0125-preview",
+            response_format= { "type":"json_object" }
         )
         content_response = response.choices[0].message.content
-        converted_response = content_response.replace('\'', '').replace('[', '').replace(']', '').split(', ')
-        generated_integrations = [integration.strip() for integration in converted_response]
-        logging.info(f"Type of generated integrations: {type(generated_integrations)}")
-        logging.info(f"Generated integrations: {generated_integrations}")
-        return generated_integrations
+        content_json = json.loads(content_response)
+        logging.info(content_json)
+        logging.info(f"Generated integrations: {content_json}")
+        return content_json['data']
     except Exception as e:
         logging.error(f"Error generating integrations: {e}")
         return []
 
 
+
+def generate_tasks_based_on_integration(business_description: str, integration: str) -> list:
+    """
+    This function uses OpenAI to generate tasks based on the provided business description and integration.
+    :param business_description: A string describing the business.
+    :param integration: A string describing the integration.
+    :return: A list of tasks relevant to the business description and integration.
+    """
+    logging.info(f"Generating tasks for business description: {business_description} and integration: {integration}")
+    try:
+        response = client.chat.completions.create(
+            messages=[
+                {
+                    "role": "user",
+                    "content": 'Business Description: ' + business_description + ' based on the provided business description, please generate tasks pertaining to ' + integration + ' integration strictly in this json format example { data: ["Setup Sandbox", "Integrate to backend"] }',
+                }
+            ],
+            model="gpt-4-0125-preview",
+            response_format= { "type":"json_object" }
+        )
+        content_response = response.choices[0].message.content
+        content_json = json.loads(content_response)
+        logging.info(content_json)
+        logging.info(f"Generated integration tasks: {content_json}")
+        return content_json['data']
+    
+    except Exception as e:
+        logging.error(f"Error generating tasks: {e}")
+        return []
