@@ -47,19 +47,19 @@ if st.button("Generate Integration Tasks"):
         selected_personas = [persona for persona in st.session_state['personas'] if st.session_state[persona+"_checkbox"]]
         selected_integrations = [integration for integration in st.session_state['integrations'] if st.session_state[integration+"_checkbox"]]
         for persona in selected_personas:
-            st.session_state['integration_tasks'][persona] = []
+            st.session_state['integration_tasks'][persona] = {}
             for integration in selected_integrations:
                 tasks = generate_tasks_based_on_integration(business_description=business_description, persona=persona, integration=integration)
-                st.session_state['integration_tasks'][persona].extend(tasks)
+                st.session_state['integration_tasks'][persona][integration] = tasks
 
 # Check if there are any integration tasks to display
 if st.session_state['integration_tasks']:
-    for persona, tasks in st.session_state['integration_tasks'].items():
-        st.subheader(f"Integration Tasks for {persona}")
-        for task in tasks:
-            unique_key = f"{persona}_{task}_checkbox"  # Create a unique key for each task
-            st.checkbox(task, value=False, key=unique_key)  # Pass the unique key to st.checkbox
-
+    for persona, integrations in st.session_state['integration_tasks'].items():
+        for integration, tasks in integrations.items():
+            st.subheader(f"Integration Tasks for {persona} with {integration}")
+            for task in tasks:
+                unique_key = f"{persona}_{integration}_{task}_checkbox"  # Create a unique key for each task
+                st.checkbox(task, value=False, key=unique_key)  # Pass the unique key to st.checkbox
 # USER STORIES
 
 if 'user_stories' not in st.session_state:
