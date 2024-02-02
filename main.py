@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import generate_persona, generate_integrations, generate_tasks_based_on_integration, generate_user_stories
+from utils import generate_persona, generate_integrations, generate_tasks_based_on_integration, generate_user_stories, generate_epics
 
 # PERSONAS
 
@@ -60,6 +60,22 @@ if st.session_state['integration_tasks']:
             for task in tasks:
                 unique_key = f"{persona}_{integration}_{task}_checkbox"  # Create a unique key for each task
                 st.checkbox(task, value=False, key=unique_key)  # Pass the unique key to st.checkbox
+
+# EPICS
+
+if 'epics' not in st.session_state:
+    st.session_state['epics'] = []
+
+if st.button("Generate Epics"):
+    with st.spinner("Generating Epics..."):  # Add loading spinner
+        st.session_state['epics'] = generate_epics(business_description=business_description)
+
+# Check if there are any epics to display
+if st.session_state['epics']:
+    for epic in st.session_state['epics']:
+        unique_key = f"{epic}_checkbox"  # Create a unique key for each epic
+        st.checkbox(epic, value=False, key=unique_key)  # Pass the unique key to st.checkbox
+        
 # USER STORIES
 
 if 'user_stories' not in st.session_state:
@@ -76,6 +92,7 @@ if st.session_state['user_stories']:
     for user_story in st.session_state['user_stories']:
         unique_key = f"{user_story}_checkbox"  
         st.checkbox(user_story, value=False, key=unique_key)
+
 
 # PRINT 
 

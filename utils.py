@@ -71,30 +71,29 @@ def generate_components(description: str) -> list:
         return []
 
 
-def generate_epics(business_description: str, component: str) -> list:
+def generate_epics(business_description: str) -> list:
     """
-    This function uses OpenAI to generate a list of epics based on the provided business description and component.
+    This function uses OpenAI to generate a list of epics based on the provided business description.
     :param business_description: A string describing the business.
-    :param component: A string representing the selected component.
-    :return: A list of epics relevant to the business and component.
+    :return: A list of epics relevant to the business.
     """
-    logging.info(f"Generating epics for business description: {business_description} and component: {component}")
+    logging.info(f"Generating epics for business description: {business_description}")
     try:
         response = client.chat.completions.create(
             messages=[
                 {
                     "role": "user",
-                    "content": f"Based on the provided business description and selected component, please list down possible epics: {business_description}, {component} List down in Array in this format: ['Epic 1', 'Epic 2']",
+                    "content": 'Business Description: ' + business_description + ' based on the provided business description, please generate epics strictly in this json format example { data: ["User Management"] }',
                 }
             ],
-            model="gpt-4",
+            model="gpt-4-0125-preview",
+            response_format= { "type":"json_object" }
         )
         content_response = response.choices[0].message.content
-        converted_response = content_response.replace('\'', '').replace('[', '').replace(']', '').split(', ')
-        generated_epics = [epic.strip() for epic in converted_response]
-        logging.info(f"Type of generated epics: {type(generated_epics)}")
-        logging.info(f"Generated epics: {generated_epics}")
-        return generated_epics
+        content_json = json.loads(content_response)
+        logging.info(content_json)
+        logging.info(f"Generated epics: {content_json}")
+        return content_json['data']
     except Exception as e:
         logging.error(f"Error generating epics: {e}")
         return []
