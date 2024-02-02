@@ -1,5 +1,5 @@
 import streamlit as st
-from utils import generate_persona, generate_integrations, generate_tasks_based_on_integration
+from utils import generate_persona, generate_integrations, generate_tasks_based_on_integration, generate_user_stories
 
 # PERSONAS
 
@@ -44,14 +44,31 @@ if 'integration_tasks' not in st.session_state:
 
 if st.button("Generate Integration Tasks"):
     with st.spinner("Generating Integration Tasks..."):  # Add loading spinner
+        selected_personas = [persona for persona in st.session_state['personas'] if st.session_state[persona+"_checkbox"]]
         selected_integrations = [integration for integration in st.session_state['integrations'] if st.session_state[integration+"_checkbox"]]
-        st.session_state['integration_tasks'] = generate_tasks_based_on_integration(business_description=business_description,integration=selected_integrations[0])
+        st.session_state['integration_tasks'] = generate_tasks_based_on_integration(business_description=business_description,persona=selected_personas[0], integration=selected_integrations[0])
 
 # Check if there are any integration tasks to display
 if st.session_state['integration_tasks']:
     for integration_task in st.session_state['integration_tasks']:
         unique_key = f"{integration_task}_checkbox"  # Create a unique key for each persona
         st.checkbox(integration_task, value=False, key=unique_key)  # Pass the unique key to st.checkbox
+
+# USER STORIES
+
+if 'user_stories' not in st.session_state:
+    st.session_state['user_stories'] = []
+
+if st.button("Generate User Stories"):
+    with st.spinner("Generate User Stories..."):  # Add loading spinner
+        selected_personas = [persona for persona in st.session_state['personas'] if st.session_state[persona+"_checkbox"]]
+        st.session_state['user_stories'] = generate_user_stories(business_description=business_description,persona=selected_personas[0])
+
+if st.session_state['user_stories']:
+    for user_story in st.session_state['user_stories']:
+        unique_key = f"{user_story}_checkbox"  
+        st.checkbox(user_story, value=False, key=unique_key)
+
 
 # PRINT 
 

@@ -100,7 +100,7 @@ def generate_epics(business_description: str, component: str) -> list:
         return []
 
 
-def generate_user_stories(business_description: str, component: str, epic: str) -> list:
+def generate_user_stories(business_description: str, persona: str) -> list:
     """
     This function uses OpenAI to generate user stories based on the provided business description, component, and epic.
     :param business_description: A string describing the business.
@@ -108,23 +108,23 @@ def generate_user_stories(business_description: str, component: str, epic: str) 
     :param epic: A string representing the selected epic.
     :return: A list of user stories relevant to the business, component, and epic.
     """
-    logging.info(f"Generating user stories for business description: {business_description}, component: {component}, and epic: {epic}")
+    logging.info(f"Generating user stories for business description: {business_description}, persona: {persona}")
     try:
         response = client.chat.completions.create(
             messages=[
                 {
                     "role": "user",
-                    "content": f"Based on the provided business description, selected component, and epic, please generate user stories: {business_description}, {component}, {epic} List down in Array in this format: ['Story 1', 'Story 2']",
+                    "content": 'Business Description: ' + business_description + ' based on the provided business description, please generate user stories for persona of ' + persona + ' including the estimated hours to develop strictly in this json format example { data: ["As a User, I want to login 2hrs"] }',
                 }
             ],
-            model="gpt-4",
+            model="gpt-4-0125-preview",
+            response_format= { "type":"json_object" }
         )
         content_response = response.choices[0].message.content
-        converted_response = content_response.replace('\'', '').replace('[', '').replace(']', '').split(', ')
-        generated_stories = [story.strip() for story in converted_response]
-        logging.info(f"Type of generated user stories: {type(generated_stories)}")
-        logging.info(f"Generated user stories: {generated_stories}")
-        return generated_stories
+        content_json = json.loads(content_response)
+        logging.info(content_json)
+        logging.info(f"Generated user stories: {content_json}")
+        return content_json['data']
     except Exception as e:
         logging.error(f"Error generating user stories: {e}")
         return []
@@ -159,7 +159,7 @@ def generate_integrations(business_description: str) -> list:
 
 
 
-def generate_tasks_based_on_integration(business_description: str, integration: str) -> list:
+def generate_tasks_based_on_integration(business_description: str, persona: str, integration: str) -> list:
     """
     This function uses OpenAI to generate tasks based on the provided business description and integration.
     :param business_description: A string describing the business.
@@ -172,7 +172,7 @@ def generate_tasks_based_on_integration(business_description: str, integration: 
             messages=[
                 {
                     "role": "user",
-                    "content": 'Business Description: ' + business_description + ' based on the provided business description, please generate tasks pertaining to ' + integration + ' integration including the estimated hours to develop strictly in this json format example { data: ["Setup Sandbox 2hrs", "Integrate to backend 8hrs"] }',
+                    "content": 'Business Description: ' + business_description + ' based on the provided business description, please generate user stories for persona of ' + persona + ' pertaining to ' + integration + ' integration including the estimated hours to develop strictly in this json format example { data: ["As a User,"] }',
                 }
             ],
             model="gpt-4-0125-preview",
