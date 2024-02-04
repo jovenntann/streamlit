@@ -1,5 +1,10 @@
 import streamlit as st
-from utils import generate_persona, generate_integrations, generate_tasks_based_on_integration, generate_user_stories, generate_epics
+from utils import OpenAIClient
+
+
+# Initialize OpenAIClient
+openai_client = OpenAIClient()
+openai_client.client.api_key = st.text_input("Enter your OpenAI API Key", type='password')
 
 # PERSONAS
 
@@ -13,7 +18,7 @@ business_description = st.text_area("Enter the business description:")
 # You no longer need `persona_generated` as session state will track the personas
 if st.button("Generate Persona", key="generate_persona_button"):
     with st.spinner("Generating Persona..."):
-        st.session_state['personas'] = generate_persona(business_description=business_description)
+        st.session_state['personas'] = openai_client.generate_persona(business_description=business_description)
 
 # Check if there are any personas to display
 if st.session_state['personas']:
@@ -28,7 +33,7 @@ if 'integrations' not in st.session_state:
 
 if st.button("Generate Integrations"):
     with st.spinner("Generating Integrations..."):
-        st.session_state['integrations'] = generate_integrations(business_description=business_description)
+        st.session_state['integrations'] = openai_client.generate_integrations(business_description=business_description)
 
 # Check if there are any integrations to display
 if st.session_state['integrations']:
@@ -49,7 +54,7 @@ if st.button("Generate Integration Tasks"):
         for persona in selected_personas:
             st.session_state['integration_tasks'][persona] = {}
             for integration in selected_integrations:
-                tasks = generate_tasks_based_on_integration(business_description=business_description, persona=persona, integration=integration)
+                tasks = openai_client.generate_tasks_based_on_integration(business_description=business_description, persona=persona, integration=integration)
                 st.session_state['integration_tasks'][persona][integration] = tasks
 
 # Check if there are any integration tasks to display
@@ -68,7 +73,7 @@ if 'epics' not in st.session_state:
 
 if st.button("Generate Epics"):
     with st.spinner("Generating Epics..."):  # Add loading spinner
-        st.session_state['epics'] = generate_epics(business_description=business_description)
+        st.session_state['epics'] = openai_client.generate_epics(business_description=business_description)
 
 # Check if there are any epics to display
 if st.session_state['epics']:
@@ -85,7 +90,7 @@ if st.button("Generate User Stories"):
     with st.spinner("Generate User Stories..."):  # Add loading spinner
         selected_personas = [persona for persona in st.session_state['personas'] if st.session_state[persona+"_checkbox"]]
         for persona in selected_personas:
-            user_stories_for_persona = generate_user_stories(business_description=business_description, persona=persona)
+            user_stories_for_persona = openai_client.generate_user_stories(business_description=business_description, persona=persona)
             st.session_state['user_stories'].extend(user_stories_for_persona)
 
 if st.session_state['user_stories']:
@@ -101,4 +106,3 @@ if st.button("Print Checked Items"):
     selected_integrations = [integration for integration in st.session_state['integrations'] if st.session_state[integration+"_checkbox"]]
     st.write("Selected Personas:", selected_personas)
     st.write("Selected Integrations:", selected_integrations)
-    
