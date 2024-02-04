@@ -1,16 +1,14 @@
 from openai import OpenAI
 import logging
-import os
 import json
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
 class OpenAIClient:
-    def __init__(self):
-        # Configure logging
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-
+    def __init__(self, api_key):
         self.client = OpenAI(
-            api_key=None
+            api_key=api_key
         )
 
     def generate_persona(self, business_description: str) -> list:

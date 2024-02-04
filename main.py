@@ -2,9 +2,8 @@ import streamlit as st
 from utils import OpenAIClient
 
 
-# Initialize OpenAIClient
-openai_client = OpenAIClient()
-openai_client.client.api_key = st.text_input("Enter your OpenAI API Key", type='password')
+api_key = st.text_input("Enter your OpenAI API Key", type='password')
+openai_client = OpenAIClient(api_key)
 
 # PERSONAS
 
