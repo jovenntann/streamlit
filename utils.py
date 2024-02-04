@@ -10,7 +10,7 @@ class OpenAIClient:
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
         self.client = OpenAI(
-            api_key=os.environ['OPENAI_KEY']
+            api_key=None
         )
 
     def generate_persona(self, business_description: str) -> list:
